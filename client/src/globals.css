@@ -1,16 +1,36 @@
 @import 'tailwindcss';
 
 @font-face {
-  font-family: Inter;
-  src: url("../src/assets/fonts/Inter_18pt-Regular.ttf");
+  font-family: 'Inter';
+  src: url("../src/assets/fonts/Inter_18pt-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Bold Weight (The "Stronger" version) */
+@font-face {
+  font-family: 'Inter';
+  src: url("../src/assets/fonts/Inter_18pt-SemiBold.ttf") format("truetype");
+  font-weight: 700; /* This defines it as "bold" */
+  font-style: normal;
 }
 
 @theme {
   --font-inter: Inter, "sans-serif"
 }
 
+@media (max-width: 768px) {
+  html {
+    font-size: 80%;
+  }
+}
+
 @layer components {
   .flex-center {
     @apply w-screen h-screen flex items-center justify-center overflow-x-hidden
+  }
+
+  .btn-1 {
+    @apply p-3.5 text-xl rounded-2xl text-white bg-stone-600 hover:bg-stone-400 hover:scale-95 transition-all duration-300
   }
 }
