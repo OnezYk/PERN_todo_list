@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: Inter;
+  src: url("../src/assets/fonts/Inter_18pt-Regular.ttf");
+}
+
+@theme {
+  --font-inter: Inter, "sans-serif"
+}
+
+@layer components {
+  .flex-center {
+    @apply w-screen h-screen flex items-center justify-center overflow-x-hidden
+  }
+}
