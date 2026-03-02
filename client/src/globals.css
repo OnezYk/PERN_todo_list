@@ -25,12 +25,32 @@
   }
 }
 
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.animate-breathe {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-zoom-in {
+  animation: zoom-in 0.5s ease-out forwards;
+  animation-delay: 1.6s;
+  opacity: 0; /* hidden before animation starts */
+}
+
 @layer components {
   .flex-center {
     @apply w-screen h-screen flex items-center justify-center overflow-x-hidden
   }
 
   .btn-1 {
-    @apply p-3.5 text-xl rounded-2xl text-white bg-stone-600 hover:bg-stone-400 hover:scale-95 transition-all duration-300
+    @apply p-3.5 text-xl rounded-2xl text-white bg-stone-600 hover:bg-stone-400 transition-all duration-300
   }
 }
