@@ -1,17 +1,9 @@
 @import 'tailwindcss';
 
 @font-face {
-  font-family: 'Inter';
-  src: url("../src/assets/fonts/Inter_18pt-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-}
-
-/* Bold Weight (The "Stronger" version) */
-@font-face {
-  font-family: 'Inter';
-  src: url("../src/assets/fonts/Inter_18pt-SemiBold.ttf") format("truetype");
-  font-weight: 700; /* This defines it as "bold" */
+  font-family: 'inter';
+  src: url('./assets/fonts/Inter-VariableFont_opsz\,wght.ttf') format('woff2-variations');
+  font-weight: 100 900; /* range instead of single value */
   font-style: normal;
 }
 
@@ -23,6 +15,11 @@
   html {
     font-size: 80%;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes breathe {
@@ -45,6 +42,17 @@
   opacity: 0; /* hidden before animation starts */
 }
 
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.saindo {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+
+
 @layer base {
   html, body {
     @apply m-0 p-0 overflow-hidden
@@ -57,6 +65,10 @@
   }
 
   .btn-1 {
-    @apply p-3.5 text-xl rounded-2xl text-white bg-stone-600 hover:bg-stone-400 transition-all duration-300
+    @apply flex items-center justify-center p-3.5 rounded-2xl text-white bg-stone-600 hover:bg-stone-500 hover:scale-105 transition-all duration-300 hover:cursor-pointer
   }
+  .btn-2 {
+    @apply flex items-center justify-center p-3.5 rounded-2xl border border-stone-300 text-stone-800 bg-stone-100 hover:bg-stone-300 hover:scale-105 transition-all duration-300 hover:cursor-pointer
+  }
+
 }

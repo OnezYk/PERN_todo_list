@@ -1,6 +1,7 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 export const WelcomeBack = () => {
@@ -26,27 +27,36 @@ export const WelcomeBack = () => {
 };
 
 const WelcomeTab = () => {
+
+  const [saindo, setSaindo] = useState(false)
+
   return (
-    <div data-aos='fade-in' className="grid w-screen h-screen lg:w-[80%] lg:h-[82%] overflow-hidden lg:grid-cols-[30%_1fr] rounded-2xl shadow-2xl bg-white">
+    <div data-aos='fade-in' className={`grid w-screen h-screen lg:w-[80%] lg:h-[82%] overflow-hidden lg:grid-cols-[30%_1fr] rounded-2xl shadow-2xl ${saindo ? "saindo" : ""}`}>
 
       <div className="hidden lg:block bg-stone-400">
         video
       </div>
 
-        <GetStartedTab />
+        <GetStartedTab onSair={() => setSaindo(true)} />
 
     </div>
   );
 };
 
-const GetStartedTab = () => {
+const GetStartedTab = ({onSair}: { onSair: () => void }) => {
 
   const [checked, setChecked] = useState(true)
+  const navigate = useNavigate()
+
+  const handleClick = () => {
+  onSair(); 
+  setTimeout(() => navigate("/home"), 500);
+  };
 
   return (
 
 
-    <div className="flex items-center justify-center lg:items-start flex-col lg:p-25.75">
+    <div className="flex items-center justify-center lg:items-start flex-col lg:p-25.75 bg-white">
 
       <p data-aos='fade-in' data-aos-delay="200" className={"text-[14px] text-stone-600"}>
         BEM VINDO DE VOLTA!
@@ -86,9 +96,9 @@ const GetStartedTab = () => {
         alcance seus objetivos, um passo de cada vez.
       </p>
 
-      <button className="animate-zoom-in shadow-lg w-95 mt-8 btn-1 hover:scale-95 hover:shadow-[0_5px_20px_rgba(0,0,0,0.3)] cursor-pointer">
-        Vamos lá
-      </button>
+        <button onClick={handleClick} className="animate-zoom-in shadow-lg w-95 mt-8 btn-1 text-xl hover:scale-95 hover:shadow-[0_5px_20px_rgba(0,0,0,0.3)] cursor-pointer">
+          Vamos lá
+        </button>
 
       <p data-aos='fade-left' data-aos-delay="1500" className="inline w-[80%] pt-4 mt-8 border-t text-[1rem] text-stone-400 border-t-stone-200 text-center lg:text-left">
         "Não deixo para amanhã o que posso deixar para a semana que vem."
