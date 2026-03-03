@@ -1,66 +1,48 @@
+//-------------------------------------------
+// Libraries
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'; // permite res.cookie
+import routes from './routes.js'; // Import das rotas
 
-// universally unique identifier para um ID de sessão
-import { v4 as uuidv4 } from 'uuid';
-
-// permite res.cookie
-import cookieParser from 'cookie-parser';
+//-------------------------------------------
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use(cookieParser())
+app.use(cookieParser());
 
-app.use((req, res, next) => {
+//-------------------------------------------
+// Rotas UUID
 
-  let userId = req.cookies.userId;
-  
-  if (!userId) {
+app.use(routes.UUID); // Criação de um UUID único e coloca em um cookie ao user entrar
 
-    //gera um UUID em string em req.cookies.userId
-    userId = uuidv4();
+app.get("/UUID", routes.UUIDCheck); // Checar UUID
 
-    //aplica a string 
-    res.cookie("userId", userId, {
+app.delete("/UUID", routes.UUIDDelete); // Deletar UUID
 
-      maxAge: 30 * 25 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax'
-      
-    });
-  };
-  
-  req.userId = userId;
-  next();
+//-------------------------------------------
+// Rotas DB
 
-});
+// Criação de um todo
+app.post("/todos", routes.CreateTodo);
 
-app.get("/userId", (req,res) => {
+// Criação de uma tag
+app.post("/tag", routes.CreateTag);
 
-  res.send(req.userId)
+// GetTodos by tag
+app.get("/todos", routes.GetTodos);
 
-});
+// Criação de uma tag
+app.get("/tag", routes.GetTag);
 
-app.delete("/userId", (req,res) => {
+//-------------------------------------------
+// Rotas default
 
-  res.clearCookie('userId', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'lax'
-  });
+app.use(routes.notFound); // 404
 
-  res.send("Cookie cleared");
-
-});
-
-app.use((req, res) => {
-
-  res.status(404).send("No route found");
-
-});
+//-------------------------------------------
 
 app.listen(5000, () => console.log("server running on port 5000"));
 

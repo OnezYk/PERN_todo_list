@@ -12,7 +12,11 @@ export const WelcomeBack = () => {
       once: true,
     })
 
-  })
+    return () => {
+      AOS.refreshHard()
+    }
+
+  }, [])
 
   return (
     <div className="flex-center bg-stone-200 font-inter">
@@ -23,7 +27,7 @@ export const WelcomeBack = () => {
 
 const WelcomeTab = () => {
   return (
-    <div className="grid w-screen h-screen lg:w-[80%] lg:h-[82%] lg:grid-cols-[30%_1fr] overflow-hidden rounded-2xl shadow-2xl bg-white">
+    <div data-aos='fade-in' className="grid w-screen h-screen lg:w-[80%] lg:h-[82%] overflow-hidden lg:grid-cols-[30%_1fr] rounded-2xl shadow-2xl bg-white">
 
       <div className="hidden lg:block bg-stone-400">
         video
@@ -44,11 +48,11 @@ const GetStartedTab = () => {
 
     <div className="flex items-center justify-center lg:items-start flex-col lg:p-25.75">
 
-      <p data-aos='fade-in' className={"text-[14px] text-stone-600"}>
+      <p data-aos='fade-in' data-aos-delay="200" className={"text-[14px] text-stone-600"}>
         BEM VINDO DE VOLTA!
       </p>
 
-      <div data-aos='fade-in' data-aos-duration='2000' data-aos-delay="300" className="flex items-center gap-4 mt-1 text-stone-800">
+      <div data-aos='fade-in' data-aos-duration='2000' data-aos-delay="500" className="flex items-center gap-4 mt-1 text-stone-800">
 
         <p className="relative right-1 text-[60px] font-bold tracking-tight">
           Prioriza
@@ -77,7 +81,7 @@ const GetStartedTab = () => {
 
       </div>
 
-      <p data-aos='fade-left' data-aos-delay="1000" className="w-95 mt-8 text-stone-600 text-[1rem]">
+      <p data-aos='fade-left' data-aos-delay="1200" className="w-95 mt-8 text-stone-600 text-[1rem]">
         Organize suas tarefas com simplicidade. Gerencie suas prioridades e
         alcance seus objetivos, um passo de cada vez.
       </p>
@@ -86,7 +90,7 @@ const GetStartedTab = () => {
         Vamos lá
       </button>
 
-      <p data-aos='fade-left' data-aos-delay="1300" className="inline w-[80%] pt-4 mt-8 border-t text-[1rem] text-stone-400 border-t-stone-200 text-center lg:text-left">
+      <p data-aos='fade-left' data-aos-delay="1500" className="inline w-[80%] pt-4 mt-8 border-t text-[1rem] text-stone-400 border-t-stone-200 text-center lg:text-left">
         "Não deixo para amanhã o que posso deixar para a semana que vem."
       </p>
     </div>

@@ -41,13 +41,19 @@
 
 .animate-zoom-in {
   animation: zoom-in 0.5s ease-out forwards;
-  animation-delay: 1.6s;
+  animation-delay: 1.8s;
   opacity: 0; /* hidden before animation starts */
+}
+
+@layer base {
+  html, body {
+    @apply m-0 p-0 overflow-hidden
+  }
 }
 
 @layer components {
   .flex-center {
-    @apply w-screen h-screen flex items-center justify-center overflow-x-hidden
+    @apply w-screen h-screen flex items-center justify-center
   }
 
   .btn-1 {
