@@ -51,35 +51,39 @@ const UUIDDelete = async (req,res) => {
     sameSite: 'lax'
   });
 
-  res.send({"Success": "Cookie limpada e UUID e seus registros deletados da DB"});
+  res.send({Sucesso: "Cookie limpada e UUID e seus registros deletados da DB"});
 }
 
 //-------------------------------------------
 // Queries routes
 
 // Criar um todo
-const CreateTodo = async (req, res) => {
+const createTodo = async (req, res) => {
   try {
     const { name, description, tags = [] } = req.body;
+
+    const treatedName = middlewares.treatStr(name)
+    const treatedDesc = middlewares.treatStr(description)
+    const treatedTags = middlewares.treatArr(tags)
 
     await middlewares.UUIDCheck(req.userId)
 
     const { rows: [{ id: todoId }] } = await pool.query(
       "INSERT INTO todos (name, description, user_uuid) VALUES ($1, $2, $3) RETURNING id",
-      [name, description, req.userId]
+      [treatedName, treatedDesc, req.userId]
     );
 
-    if (tags.length > 0) {
+    if (treatedTags.length > 0) {
       // insere todas as tags de uma vez, ignora duplicatas
       await pool.query(
         "INSERT INTO tags (name, user_uuid) SELECT UNNEST($1::text[]), $2 ON CONFLICT (name, user_uuid) DO NOTHING",
-        [tags, req.userId]
+        [treatedTags, req.userId]
       );
 
       // busca os ids de todas as tags
       const { rows: tagRows } = await pool.query(
         "SELECT id FROM tags WHERE name = ANY($1) AND user_uuid = $2",
-        [tags, req.userId]
+        [treatedTags, req.userId]
       );
 
       // insere todas as relações de uma vez
@@ -90,7 +94,7 @@ const CreateTodo = async (req, res) => {
       );
     }
 
-    res.send(`Todo criado! ${name}`);
+    res.send({sucesso: `Todo: ${treatedName} criado`});
   } catch (err) {
     console.error(err);
     res.status(500).send("Erro ao criar todo");
@@ -98,27 +102,34 @@ const CreateTodo = async (req, res) => {
 };
 
 // Criar uma tag
-const CreateTag = async (req, res) => {
+const createTag = async (req, res) => {
 
-  const { name } = req.body;
+  const { name = [] } = req.body;
 
+  const treatedName = middlewares.treatArr(name)
   middlewares.UUIDCheck(req.userId)
 
-  const newTodo = await pool.query("INSERT INTO tags (name, user_uuid) VALUES ($1, $2) RETURNING *", [name, req.userId]);
+  const newTodo = await pool.query("INSERT INTO tags (name, user_uuid) SELECT UNNEST($1::text[]), $2 ON CONFLICT (name, user_uuid) DO NOTHING RETURNING *", [treatedName, req.userId]);
+  
 
-  res.send (`tag criada! ${name}`);
+  if (newTodo.rows.length === 0) {
+    res.send({Erro: `${treatedName.length > 1 ? "Essas tags" : "Essa tag"} já existe.`})
+    return;
+  }
+
+  res.send({sucesso: `${treatedName.length > 1 ? "Tags criadas!" : "Tag criada!"}`, tags: treatedName});
 
 }
 
 // GetAllTags
-const GetTag = async (req, res) => {
+const getTag = async (req, res) => {
 
   middlewares.UUIDCheck(req.userId)
 
-  const tags = await pool.query("SELECT name FROM tags WHERE user_uuid = $1", [req.userId]);
+  const tags = await pool.query("SELECT name, id FROM tags WHERE user_uuid = $1", [req.userId]);
 
   if (tags.rows.length === 0) {
-    res.send({"Erro": "Você não criou nenhuma tag ainda"});
+    res.send({Erro: "Você não criou nenhuma tag ainda"});
     return
   }
 
@@ -127,61 +138,188 @@ const GetTag = async (req, res) => {
 }
 
 // GetAllTodos
-const GetTodos = async (req, res) => {
+const getTodos = async (req, res) => {
+  const { tag, name } = req.query;
 
-  const { tag } = req.query;
+  try {
+    const tags = tag ? (Array.isArray(tag) ? tag : [tag]) : null;
+    const values = [req.userId];
+    let i = 2;
 
-  const result = await pool.query(
-    `
-    SELECT todos.*
-    FROM todos
-    JOIN todo_tags ON todo_tags.todo_id = todos.id
-    JOIN tags ON tags.id = todo_tags.tag_id
-    WHERE todos.user_uuid = $1
-    AND tags.name = $2;
-    `,
-    [req.userId, tag]
-  );
-  
-  if (tag) {
-    
-        if (result.rows.length === 0) {
-          res.send({"Erro": "Nenhum afazer encontrado com esses filtros!"});
-          return
-        }
-
-    res.send(result)
-    
-    return;  
-  } else {
-    
-    const result = await pool.query("SELECT * FROM todos WHERE user_uuid = $1", [req.userId]);
-    
-    if (result.rows.length === 0) {
-      res.send({"Erro": "Você ainda não criou nenhum afazer!"});
+    let having = '';
+    if (tags) {
+      having = `HAVING array_agg(tags.name) @> $${i++}::text[]`;
+      values.push(tags);
     }
 
-    res.send(result)
+    let where = `WHERE todos.user_uuid = $1`;
+    if (name) {
+      where += ` AND todos.name ILIKE $${i++}`;
+      values.push(`%${name}%`);
+    }
+
+    const result = await pool.query(
+      `
+      SELECT todos.*, json_agg(tags.name) as tags
+      FROM todos
+      LEFT JOIN todo_tags ON todo_tags.todo_id = todos.id
+      LEFT JOIN tags ON tags.id = todo_tags.tag_id
+      ${where}
+      GROUP BY todos.id
+      ${having}
+      `,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.send({ erro: "Nenhum afazer encontrado!" });
+    }
+
+    res.send(result.rows);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ erro: "Erro interno ao buscar afazeres." });
+  }
+};
+
+// Deletar todo
+const deleteTodo = async (req, res) => {
+
+  const id = req.body.id;
+
+  try {
+
+    const deletion = await pool.query("DELETE FROM todos WHERE user_uuid = $1 and id = $2", [req.userId, id]);
+    
+    if (deletion.rowCount === 0) {
+      return res.status(404).send({erro: "Todo não encontrada."})
+    }
+
+    res.send({Sucesso: "Todo deletada!"});
 
   }
+    
+  catch (err) {
+    console.error(err);
+    res.status(500).send({ erro: "Erro interno ao deletar a todo." });
+  }
+
+};
+
+// Deletar tag
+const deleteTag = async (req, res) => {
+
+  const id = req.body.id;
+  console.log(id)
+
+  try {
+
+    const deletion = await pool.query("DELETE FROM tags WHERE user_uuid = $1 and id = $2 RETURNING name", [req.userId, id]);
+    res.send({sucesso: `Tag ${deletion.rows[0].name} deletada!`})
+
+    if (deletion.rowCount === 0) {
+      res.status(404).send({ notFound: "Nenhuma tag deletada"})
+    }
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ erro: "Erro interno ao deletar tag"})
+  }
+
+};
+
+// Alterar todo
+const alterTodo = async (req, res) => {
+  const { id, name, description, concluido } = req.body;
+
+  const fields = [];
+  const values = [];
+  let i = 1;
+
+  if (name) {
+    fields.push(`name = $${i++}`);
+    values.push(name);
+  }
+  if (description) {
+    fields.push(`description = $${i++}`);
+    values.push(description);
+  }
+  if (concluido) {
+    fields.push(`concluido = $${i++}`);
+    values.push(concluido);
+  }
+
+  if (fields.length === 0) {
+    return res.status(400).send({ erro: "Nenhum campo para alterar!" });
+  }
+
+  values.push(req.userId, id);
+
+  const query = `
+    UPDATE todos 
+    SET ${fields.join(", ")} 
+    WHERE user_uuid = $${i++} AND id = $${i}
+  `;
+
+  const result = await pool.query(query, values);
+
+  res.send({sucesso: "Todo atualizado"})
+}
+
+// Alterar tag
+const alterTag = async (req, res) => {
+
+  const { name, id } = req.body
+
+  if (name) {
+    res.send({erro: "Nenhuma alteração feita"})
+  }
+
+  const result = pool.query("UPDATE tags SET name = $1 WHERE id = $2 AND user_uuid = $3", [name, id, req.userId])
+  res.send("Alteração realizada!")
 
 }
 
-// Deletar todo
+// Complete todo
+const completeTodo = async (req, res) => {
 
-// Deletar tag
+  const { todoId } = req.body
 
-// Alterar todo
+  const result = await pool.query("UPDATE todos SET concluido = NOT concluido WHERE id = $1 AND user_uuid = $2", [todoId, req.userId])
 
-// Alterar tag
+  res.send({Sucesso: "Todo checked/unchecked"})
+
+}
+
+// Append tags
+const appendTag = async (req, res) => {
+  
+  const { tags = [], todoId, name } = req.body;
+
+  if (tags.length === 0) {
+    res.send({erro: "Dê um nome à tag"})
+  }
+
+  const tagCreate = await pool.query("INSERT INTO tags (name, user_uuid) SELECT UNNEST($1::text[]), $2 ON CONFLICT (name, user_uuid) DO NOTHING",
+  [tags, req.userId]);
+
+  const tagsIdObj = await pool.query("SELECT id FROM tags WHERE user_uuid = $1 AND name = ANY($2::text[])", [req.userId, tags])
+  const tagsIdArr = tagsIdObj.rows.map(obj => obj.id);
+
+  const result = await pool.query("INSERT INTO todo_tags (todo_id, tag_id) SELECT $1, UNNEST($2::int[]) ON CONFLICT (todo_id, tag_id) DO NOTHING", [todoId, tagsIdArr])
+
+  res.send({sucesso: `${tags.length > 1 ? "Tags" : "Tag"} ${tags.join(", ")} associada a ${name}`})
+
+}
 
 //-------------------------------------------
 //Others...
 
 //Not found route
 const notFound = (req,res) => {
-  res.status(404).send("No route found")
+  res.status(404).send({Erro: "Rota não encontrada"})
 }
 
-export default {UUID, UUIDCheck, UUIDDelete,CreateTodo , notFound, GetTodos, CreateTag, GetTag}
+export default {UUID, UUIDCheck, UUIDDelete, notFound, createTodo , getTodos, deleteTodo, alterTodo, createTag, getTag, deleteTag, alterTag, appendTag, completeTodo}
 

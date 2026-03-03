@@ -26,16 +26,34 @@ app.delete("/UUID", routes.UUIDDelete); // Deletar UUID
 // Rotas DB
 
 // Criação de um todo
-app.post("/todos", routes.CreateTodo);
+app.post("/todos", routes.createTodo);
 
 // Criação de uma tag
-app.post("/tag", routes.CreateTag);
+app.post("/tag", routes.createTag);
 
-// GetTodos by tag
-app.get("/todos", routes.GetTodos);
+// Busca de todos by tag ou get all
+app.get("/todos", routes.getTodos);
 
-// Criação de uma tag
-app.get("/tag", routes.GetTag);
+// Busca de tags
+app.get("/tag", routes.getTag);
+
+// Delete de todo
+app.delete("/todos", routes.deleteTodo);
+
+// Delete de tags
+app.delete("/tag", routes.deleteTag);
+
+// Update de todo
+app.patch("/todos", routes.alterTodo);
+
+// Update de tags
+app.patch("/tag", routes.alterTag);
+
+// Append tags
+app.patch("/tag/append", routes.appendTag)
+
+// Complete todo
+app.patch("/todos/concluido", routes.completeTodo)
 
 //-------------------------------------------
 // Rotas default
