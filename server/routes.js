@@ -37,7 +37,7 @@ const UUID = (req, res, next) => {
 
 // Checkagem do UUID
 const UUIDCheck = (req,res) => {
-  res.send(req.userId)
+  res.send({Sucesso: req.userId})
 }
 
 // Delete da cookie
@@ -57,20 +57,25 @@ const UUIDDelete = async (req,res) => {
 //-------------------------------------------
 // Queries routes
 
-// Criar um todo
+// Criar todo
 const createTodo = async (req, res) => {
   try {
-    const { name, description, tags = [] } = req.body;
+    const { name, description, tags = [], date } = req.body;
 
+    
     const treatedName = middlewares.treatStr(name)
     const treatedDesc = middlewares.treatStr(description)
     const treatedTags = middlewares.treatArr(tags)
+    
+    if (treatedName === null) {
+      res.send({Erro: "Necessário preencher o campo de nome"})
+    }
 
     await middlewares.UUIDCheck(req.userId)
 
     const { rows: [{ id: todoId }] } = await pool.query(
-      "INSERT INTO todos (name, description, user_uuid) VALUES ($1, $2, $3) RETURNING id",
-      [treatedName, treatedDesc, req.userId]
+      `INSERT INTO todos (name, description, user_uuid ${date ? ", expires" : ""}) VALUES ($1, $2, $3 ${date ? ", $4" : ""}) RETURNING id`,
+      date ? [treatedName, treatedDesc, req.userId, date] : [treatedName, treatedDesc, req.userId]
     );
 
     if (treatedTags.length > 0) {

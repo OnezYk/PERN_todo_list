@@ -14,12 +14,20 @@ const UUIDCheck = async (UUID) => {
 
 }
 
-const treatArr = (name) => {
-  return name.map(nome => nome.charAt(0).toUpperCase() + nome.slice(1));
+const treatArr = (arr) => {
+
+  if (!arr) return null
+
+    return arr.map(nome => nome.charAt(0).toUpperCase() + nome.slice(1));
+  
 }
 
 const treatStr = (name) => {
+
+  if (!name) return null
+
   return name.charAt(0).toUpperCase() + name.slice(1);
+
 }
 
 export default {UUIDCheck, treatArr, treatStr}
