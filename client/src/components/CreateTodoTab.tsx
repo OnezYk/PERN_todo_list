@@ -1,23 +1,35 @@
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { DatePicker, LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { useCreateTodo } from "../hooks/useCreateTodo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useState } from "react";
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+import { MdAccessTime } from "react-icons/md";
 
-export const CreateTodoTab = ({ closeTab }: { closeTab: () => void }) => {
+dayjs().locale("pt_br")
+
+export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, onSubmit: () => void }) => {
+
+  const [timeOpen, setTimeOpen] = useState(false)
 
   const {
     handleTagChange, 
     handleAddTag,  
     handleChangeDate, 
+    handleChangeTime,
     handlePostTodo,
     handleNameChange,
     handleDescChange,
     handleAutoResize,
-    todoInfo, 
-    setTodoInfo, 
+    todoInfo,
     selectedDate
   } = useCreateTodo()
 
+  const handleSubmit = async () => {
+  await handlePostTodo();
+  onSubmit();
+  closeTab();
+}
 
   return (
     <div
@@ -26,7 +38,7 @@ export const CreateTodoTab = ({ closeTab }: { closeTab: () => void }) => {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`z-50 absolute font-medium min-w-200 flex flex-col items-center bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden cursor-default`}
+        className={`z-50 absolute font-medium min-w-235 flex flex-col items-center bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden cursor-default`}
         style={{animation: "fadeIn 0.2s ease forwards"}}
       >
 
@@ -40,7 +52,7 @@ export const CreateTodoTab = ({ closeTab }: { closeTab: () => void }) => {
             onInput={handleAutoResize}
             className="resize-none w-full pt-4 px-6 outline-none focus:ring-0 border-0 text-[22px]"
           />
-          
+
           <textarea
             placeholder="Insira sua desc aqui"
             rows={1}
@@ -50,7 +62,7 @@ export const CreateTodoTab = ({ closeTab }: { closeTab: () => void }) => {
           />
 
           <div className="flex border-b border-stone-300">
-            <div className="p-4 w-100 flex gap-2 items-center flex-wrap border-stone-300 border-r">
+            <div className="p-4 w-full flex gap-2 items-center flex-wrap border-stone-300 border-r">
               <p>Tags: </p>
               {todoInfo.tags.map((tag, i) => (
                 <CreateTag
@@ -64,20 +76,45 @@ export const CreateTodoTab = ({ closeTab }: { closeTab: () => void }) => {
               ))}
             </div>
 
-            <div className="flex mx-auto my-auto h-full">
-              <div className=" h-10 p-4 mx-2 mb-1 flex gap-2 text-[15px] items-center">
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    value={selectedDate}
-                    onChange={handleChangeDate}
-                  />
+            <div className="flex relative my-auto h-full justify-center mx-2">
+              <div className=" h-10 mb-1 flex gap-2 text-[15px] items-center">
+                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
+                  <div className="flex gap-2 items-center ">
+                    
+                    <DatePicker
+                      value={selectedDate}
+                      onChange={(newDate) => {
+                          handleChangeDate(newDate);
+                      }}
+                    />
+
+                    {
+                    !timeOpen && 
+                    <div onClick={() => setTimeOpen (p => !p)} className={`flex justify-center items-center w-14 h-14 border border-stone-300 rounded mr-2 hover:scale-95 hover:text-stone-700 transition-all`}>
+                      <MdAccessTime className="text-stone-500" size={25} />
+                    </div>
+                    }
+
+                    {
+                    timeOpen && 
+                    <TimePicker
+                      label="Horário"
+                      onChange={(newDate) => {
+                        if (newDate) {
+                          handleChangeTime(newDate);
+                        }
+                      }}
+                    />
+                    }
+
+                  </div>
                 </LocalizationProvider>
               </div>
             </div>
           </div>
 
-          <button onClick={handlePostTodo} className="btn-1 w-60 h-12 px-13 py-3 my-2 m-auto gap-2 font-medium">
-            Completar
+          <button onClick={handleSubmit} className="btn-1 w-60 h-12 px-13 py-3 my-2 m-auto gap-2 font-medium">
+            Finalizar tarefa
           </button>
           
         </div>
@@ -87,14 +124,14 @@ export const CreateTodoTab = ({ closeTab }: { closeTab: () => void }) => {
 };
 
 const CreateTag = ({
-  addTag,
-  value,
-  onChange,
-}: {
-  addTag: () => void;
-  value: string;
-  onChange: (val: string) => void;
-}) => {
+    addTag,
+    value,
+    onChange,
+  }: {
+    addTag: () => void;
+    value: string;
+    onChange: (val: string) => void;
+  }) => {
   const [open, setOpen] = useState(false);
 
   return (

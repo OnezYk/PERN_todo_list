@@ -1,11 +1,18 @@
-export const postTodos = (
+import dayjs from "dayjs";
+
+export const postTodos = async (
   name: string, 
   description: string, 
   tags: string[], 
-  date: Date | null ): void => {
+  date: Date | null,
+  time: Date | null): Promise<void> => {
 
-  fetch("http://localhost:5000/todos", {
+  // Array de tags criava uma tag vazia no array pela UI
+  const treatedTags = tags.filter((tag) => tag.length > 0);
+
+  return await fetch("http://localhost:5000/todos", {
   method: "POST",
+  credentials: "include",
   headers: {
     "Content-Type": "application/json",
   },
@@ -13,8 +20,9 @@ export const postTodos = (
     {
   "name": name,
   "description": description,
-  "tags": tags,
-  "date": date?.toISOString().split('T')[0]
+  "tags": treatedTags,
+  "date": date? dayjs(date)?.format("YYYY-MM-DD"): null,
+  "time": time ? dayjs(time).format("HH:mm:ss") : null,
   }
   ),
 })

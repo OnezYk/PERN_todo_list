@@ -7,7 +7,7 @@ const UUIDCheck = async (UUID) => {
 
   if (!UUIDexists) {
 
-    const userUUID = await pool.query("INSERT INTO todousers (uuid) VALUES ($1)", [UUID]);
+    await pool.query("INSERT INTO todousers (uuid) VALUES ($1)", [UUID]);
     console.log("User registrado!");
 
   }

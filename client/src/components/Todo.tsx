@@ -1,15 +1,19 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { IoIosCalendar } from "react-icons/io";
-import { MdClose, MdEdit } from "react-icons/md";
+import { MdCalendarMonth, MdClose, MdEdit } from "react-icons/md";
+import { useDate } from "../hooks/useDate";
+import { FiClock } from "react-icons/fi";
 
-export const Todo = ({ name = "Lavar a louça", tags = ["casa", "urgente"], concluido: init = false }) => {
-  const [concluido, setConcluido] = useState(init);
+export const Todo = ({ name, tags, concluido, date, time, description}: { name: string; tags: string[] | null; concluido: boolean, date: Date, time: Date, description:string}) => {
+  
+  const [checked, setChecked] = useState(false);
   const [aberto, setAberto] = useState(false);
+  const {dateFormat} = useDate()
 
   return (
-    <div onClick={() => setAberto (p => !p)} className={`flex text-stone-800 items-center gap-4 px-5 py-4 rounded-xl border transition-all duration-300 hover:cursor-pointer ${concluido ? "bg-stone-100 border-stone-200" : "bg-white border-stone-300 shadow-md"}`}>
+    <div className={`flex text-stone-800 gap-4 px-5 rounded-xl border transition-all duration-300 hover:cursor-pointer ${checked ? "bg-stone-100 border-stone-200" : "bg-white border-stone-300 shadow-md"}`}>
       
     {aberto && (
     <div onClick={(e) => { e.stopPropagation(); setAberto(false); }}  className="flex left-0 top-0 absolute z-10 h-screen w-screen justify-center items-center backdrop-blur-[2px] bg-[rgba(0,0,0,0.2)]"
@@ -18,32 +22,55 @@ export const Todo = ({ name = "Lavar a louça", tags = ["casa", "urgente"], conc
     </div>
     )}  
 
-      <input
-        type="checkbox"
-        checked={concluido}
-        onClick={(e) => e.stopPropagation()}
-        onChange={() => setConcluido(p => !p)}
-        className="w-5 h-5 rounded accent-stone-600 cursor-pointer shrink-0"
-      />
+        <input
+          type="checkbox"
+          checked={checked}
+          onClick={(e) => e.stopPropagation()}
+          onChange={() => setChecked(p => !p)}
+          className="w-6 h-6 rounded accent-stone-600 cursor-pointer shrink-0 mt-6"
+        />
 
-      <div className="flex flex-1 gap-1">
-        <p className={`text-[15px] font-bold transition-all ${concluido ? "line-through text-stone-400" : "text-stone-800"}`}>
+      <div onClick={() => setAberto (p => !p)} className="min-w-0 wrap-break-word line-2 flex-1 h-full py-6">
+        <p className={`text-[15px] font-bold transition-all ${checked ? "line-through text-stone-400" : "text-stone-800"}`}>
           {name}
         </p>
+        
+        {description &&
+          <p className="wrap-break-word line-clamp-2 text-stone-500">{description}</p>
+        }
 
       </div>
 
-      <div className="flex gap-10">
+      <div className="flex gap-10 py-4">
         <div className="flex items-center gap-2">
-          {tags.map(tag => (
+
+          {tags && tags[0] !== null && tags.map(tag => (
             <span key={tag} className="text-[14px] px-4 py-1.5 rounded-full bg-stone-200 text-stone-500 font-medium">
               {tag}
             </span>
           ))}
+
+          <div className="flex flex-col items-end">
+            {date && date!==null &&
+              <span className="flex gap-2.5 items-center">
+                <p>{dateFormat(date)}</p>
+                 <MdCalendarMonth size={18}/>
+              </span>
+            }
+            {time && time!==null && 
+            <div className="flex items-center gap-2.5">
+              <p>{String(time)}</p>
+              <FiClock size={18}/>
+            </div>
+            }
+          </div>
+
         </div>
-        <button onClick={(e) => e.stopPropagation()} className="p-3 bg-stone-100 rounded-xl text-stone-400 hover:text-red-400 hover:bg-red-100 transition-colors cursor-pointer">
+
+        <button onClick={(e) => e.stopPropagation()} className="p-3 h-10 my-auto bg-stone-100 rounded-xl text-stone-400 hover:text-red-400 hover:bg-red-100 transition-colors cursor-pointer">
           <FaRegTrashAlt size={16} />
         </button>
+        
       </div>
 
     </div>
