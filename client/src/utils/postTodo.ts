@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-export const postTodos = async (
+export const postTodo = async (
   name: string, 
   description: string, 
   tags: string[], 
@@ -22,7 +22,7 @@ export const postTodos = async (
   "description": description,
   "tags": treatedTags,
   "date": date? dayjs(date)?.format("YYYY-MM-DD"): null,
-  "time": time ? dayjs(time).format("HH:mm:ss") : null,
+  "time": time ? dayjs(time).format("HH:mm") : null,
   }
   ),
 })

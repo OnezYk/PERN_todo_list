@@ -1,7 +1,44 @@
-import React from 'react'
+
+import { useState } from "react";
+
+import {useGetTodos} from "../hooks/useGetTodos";
+
+import {Todo} from "../components/Todo";
+import { CreateTodoTab } from "../components/CreateTodoTab";
+
 
 export const Calendar = () => {
+
+  const {todos, erro, getTodos} = useGetTodos();
+  const [open, setOpen] = useState(false)
+
   return (
-    <div className={`grid w-screen h-screen overflow-hidden grid-cols-[15%_1fr] shadow-2xl bg-[rgb(249,249,248)]`}>Calendar</div>
-  )
-}
+
+    <div className={`w-screen h-screen overflow-hidden bg-[rgb(249,249,248)] text-stone-800`}>
+
+      {open && ( <CreateTodoTab onSubmit={getTodos} closeTab={() => { setOpen((p) => !p) }} /> )}
+
+      <div className="pt-5 pl-9 pb-5 border-b border-stone-300">
+        <h1 className="text-4xl font-bold">Calendário de tarefas</h1>
+        <p className="mt-2">{erro ? "Sem tarefas por hoje" : `0 de ${todos.length} concluída`}</p>
+      </div>
+
+      <div className="flex flex-col gap-3 h-[calc(100%-113px)] p-9 overflow-y-scroll custom-scroll">
+
+        {
+        erro ? 
+        <p>Sem afazeres hoje</p>
+        :
+        
+        todos.map(todo => (<Todo updateTodo={getTodos} key={todo.id} {...todo} />))
+        }
+
+        <div className="flex gap-3 mt-8">
+
+        </div>
+
+      </div>
+      <div className="relative bottom-10 w-[calc(100%-10px)] h-10 bg-linear-to-b from-[rgba(249,249,249,0)] to-[rgba(249,249,248,1)] pointer-events-none"></div>
+    </div>
+  );
+};

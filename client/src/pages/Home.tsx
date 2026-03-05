@@ -1,11 +1,11 @@
 import {FaPlus} from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {useGetTodos} from "../hooks/useGetTodos";
+import { dateFormat } from "../utils/dateFormat";
 
 import {Todo} from "../components/Todo";
 import { CreateTodoTab } from "../components/CreateTodoTab";
-import { UUIDCheck } from "../hooks/UUIDCheck";
 
 
 export const Home = () => {
@@ -13,6 +13,7 @@ export const Home = () => {
   const {todos, erro, getTodos} = useGetTodos();
   const [open, setOpen] = useState(false)
 
+  const todayTodos = todos.filter((todo) => dateFormat.isToday(todo.date))
 
   return (
 
@@ -21,8 +22,8 @@ export const Home = () => {
       {open && ( <CreateTodoTab onSubmit={getTodos} closeTab={() => { setOpen((p) => !p) }} /> )}
 
       <div className="pt-5 pl-9 pb-5 border-b border-stone-300">
-        <h1 className="text-4xl font-bold">Afazeres hoje</h1>
-        <p className="mt-2">{todos.length == 0 ? "Sem tarefas por hoje" : `0 de ${todos.length} concluída`}</p>
+        <h1 className="text-4xl font-bold">Tarefas hoje</h1>
+        <p className="mt-2">{erro ? "Sem tarefas por hoje" : `0 de ${todayTodos.length} concluída`}</p>
       </div>
 
       <div className="flex flex-col gap-3 h-[calc(100%-113px)] p-9 overflow-y-scroll custom-scroll">
@@ -31,7 +32,8 @@ export const Home = () => {
         erro ? 
         <p>Sem afazeres hoje</p>
         :
-        todos.map(todo => (<Todo key={todo.id} {...todo} />))
+        
+        todayTodos.map(todo => (<Todo updateTodo={getTodos} key={todo.id} {...todo} />))
         }
 
         <div className="flex gap-3 mt-8">

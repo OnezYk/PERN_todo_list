@@ -24,6 +24,7 @@ export const useGetTodos = () => {
           setErro(data.erro);
         } else {
           setTodos(data);
+          console.log(data)
         }
       })
       .catch(err => setErro(err))

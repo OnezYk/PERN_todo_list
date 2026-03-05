@@ -174,7 +174,7 @@ const getTodos = async (req, res) => {
       ${where}
       GROUP BY todos.id
       ${having}
-      `,
+      ORDER BY time`,
       values
     );
 

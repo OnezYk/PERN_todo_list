@@ -5,6 +5,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/pt-br";
 import { MdAccessTime } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 dayjs().locale("pt_br")
 
@@ -22,7 +23,13 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
     handleDescChange,
     handleAutoResize,
     todoInfo,
-    selectedDate
+    nameCharLimited,
+    descCharLimited,
+    tagCharLimited,
+    selectedDate,
+    setSelectedTime,
+    selectedTime
+
   } = useCreateTodo()
 
   const handleSubmit = async () => {
@@ -31,6 +38,11 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
   closeTab();
 }
 
+  const handleCloseTime = () => {
+    setTimeOpen(false)
+    setSelectedTime(null)
+  }
+
   return (
     <div
       onClick={closeTab}
@@ -38,11 +50,11 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`z-50 absolute font-medium min-w-235 flex flex-col items-center bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden cursor-default`}
+        className={`z-50 absolute font-medium max-w-300 flex flex-col items-center bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden cursor-default`}
         style={{animation: "fadeIn 0.2s ease forwards"}}
       >
 
-        <div className="flex flex-col w-full">
+        <div className="relative flex flex-col w-full">
           
           <textarea
             autoFocus
@@ -50,6 +62,7 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
             rows={1}
             onChange={handleNameChange}
             onInput={handleAutoResize}
+            value={nameCharLimited}
             className="resize-none w-full pt-4 px-6 outline-none focus:ring-0 border-0 text-[22px]"
           />
 
@@ -58,11 +71,12 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
             rows={1}
             onChange={handleDescChange}
             onInput={handleAutoResize}
+            value={descCharLimited}
             className="w-full pl-8 px-6 pb-4 overflow-hidden outline-none resize-none focus:ring-0 border-0 border-b text-[16px] text-stone-500 border-stone-300"
           />
 
           <div className="flex border-b border-stone-300">
-            <div className="p-4 w-full flex gap-2 items-center flex-wrap border-stone-300 border-r">
+            <div className="p-4 min-w-100 max-w-200 flex gap-2 items-center flex-wrap border-stone-300 border-r">
               <p>Tags: </p>
               {todoInfo.tags.map((tag, i) => (
                 <CreateTag
@@ -79,7 +93,7 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
             <div className="flex relative my-auto h-full justify-center mx-2">
               <div className=" h-10 mb-1 flex gap-2 text-[15px] items-center">
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
-                  <div className="flex gap-2 items-center ">
+                  <div className="flex gap-2 items-center">
                     
                     <DatePicker
                       value={selectedDate}
@@ -97,14 +111,20 @@ export const CreateTodoTab = ({ closeTab, onSubmit }: { closeTab: () => void, on
 
                     {
                     timeOpen && 
-                    <TimePicker
-                      label="Horário"
-                      onChange={(newDate) => {
-                        if (newDate) {
-                          handleChangeTime(newDate);
-                        }
-                      }}
-                    />
+                    <div className="flex gap-2 items-center">
+                      <TimePicker
+                        label="Horário"
+                        value={selectedTime}
+                        onChange={(newDate) => {
+                          if (newDate) {
+                            handleChangeTime(newDate);
+                          }
+                        }}
+                      />
+                      <div onClick={handleCloseTime} className="flex items-center justify-center hover:scale-95 hover:text-stone-700 transition-all border h-14 w-8 rounded cursor-pointer border-stone-300">
+                        <IoClose/>
+                      </div>
+                    </div>
                     }
 
                   </div>
@@ -147,8 +167,9 @@ const CreateTag = ({
       }}
       onChange={(e) => {
         onChange(e.target.value);
-        e.currentTarget.style.width = e.target.value.length + 5 + "ch";
-      }}
+          const length = e.target.value.length + 5;
+          e.currentTarget.style.width = Math.min(length, 98) + "ch";
+        }}
       className={`rounded-full py-1.5 px-3 ${open ? "w-16" : "w-10"} hover:cursor-pointer placeholder:text-[22px] placeholder:font-bold text-center transition-all duration-300 bg-stone-200`}
     />
   );

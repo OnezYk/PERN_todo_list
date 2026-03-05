@@ -1,16 +1,35 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { IoIosCalendar } from "react-icons/io";
 import { MdCalendarMonth, MdClose, MdEdit } from "react-icons/md";
-import { useDate } from "../hooks/useDate";
+import { dateFormat } from "../utils/dateFormat";
 import { FiClock } from "react-icons/fi";
+import { deleteTodo } from "../utils/deleteTodo";
 
-export const Todo = ({ name, tags, concluido, date, time, description}: { name: string; tags: string[] | null; concluido: boolean, date: Date, time: Date, description:string}) => {
+type TodoType = {
+  name: string; 
+  tags: string[] | null; 
+  concluido: boolean, 
+  date: Date,
+  time: Date, 
+  description:string, 
+  id:number,
+  updateTodo: () => void
+}
+
+export const Todo = ({ name, tags, concluido, date, time, description, id, updateTodo}: TodoType) => {
   
   const [checked, setChecked] = useState(false);
   const [aberto, setAberto] = useState(false);
-  const {dateFormat} = useDate()
+
+  const handleDeleteTodo = async (e : React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+
+    e.stopPropagation();
+    await deleteTodo(id);
+    updateTodo();
+
+  }
 
   return (
     <div className={`flex text-stone-800 gap-4 px-5 rounded-xl border transition-all duration-300 hover:cursor-pointer ${checked ? "bg-stone-100 border-stone-200" : "bg-white border-stone-300 shadow-md"}`}>
@@ -53,13 +72,13 @@ export const Todo = ({ name, tags, concluido, date, time, description}: { name: 
           <div className="flex flex-col items-end">
             {date && date!==null &&
               <span className="flex gap-2.5 items-center">
-                <p>{dateFormat(date)}</p>
+                <p>{dateFormat.getWeekDate(date)}</p>
                  <MdCalendarMonth size={18}/>
               </span>
             }
             {time && time!==null && 
             <div className="flex items-center gap-2.5">
-              <p>{String(time)}</p>
+              <p>{String(time).slice(0,5)}</p>
               <FiClock size={18}/>
             </div>
             }
@@ -67,7 +86,7 @@ export const Todo = ({ name, tags, concluido, date, time, description}: { name: 
 
         </div>
 
-        <button onClick={(e) => e.stopPropagation()} className="p-3 h-10 my-auto bg-stone-100 rounded-xl text-stone-400 hover:text-red-400 hover:bg-red-100 transition-colors cursor-pointer">
+        <button onClick={handleDeleteTodo} className="p-3 h-10 my-auto bg-stone-100 rounded-xl text-stone-400 hover:text-red-400 hover:bg-red-100 transition-colors cursor-pointer">
           <FaRegTrashAlt size={16} />
         </button>
         
