@@ -12,7 +12,7 @@ export const Navbar = () => {
 
         <div className='p-7.5 border-b border-stone-300'>
 
-          <Link to={"/home"} className='flex items-center justify-center w-13 h-13 p-2 rounded-lg bg-stone-600 shadow-xl hover:bg-stone-500 hover:scale-110 transition-all'>
+          <Link to={"/home"} className='flex items-center justify-center w-13 h-13 p-2 rounded-lg bg-stone-600 shadow-xl hover:bg-stone-500 hover:scale-110 active:scale-100 transition-all'>
             <CgGoogleTasks className='text-white scale-200' />
           </Link>
 

@@ -16,6 +16,7 @@ export const useGetTodos = () => {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
 
+  // CONSOLE.LOG em cada getTodo()
   const fetchTodos = () => 
     fetch("http://localhost:5000/todos", { credentials: "include" })
       .then(res => res.json())
