@@ -88,9 +88,27 @@ export function useCreateTodo() {
   const handleChangeTime = (newDate: Dayjs | null)  => {
 
     if (newDate && dayjs().diff(newDate) > 0) {
+
+      const roundUpToNext5 = (time: Dayjs) => {
+      const minutes = time.minute();
+      const rounded = Math.ceil(minutes / 5) * 5;
+      return time.minute(rounded).second(0);
+      }
+
+      const corrected = roundUpToNext5(dayjs().add(1, "minutes"))
+      setSelectedTime(corrected)
+
       alert("Selecione um horário válido")
-      setSelectedTime(dayjs().add(1, "minutes"))
+
+      setTodoInfo(todoObj => ({
+      ...todoObj,
+      time: corrected ? corrected.toDate() : null
+      }))
+
+      console.log(selectedTime)
+      
       return
+
     }
 
     setSelectedTime(newDate);
@@ -147,6 +165,9 @@ export function useCreateTodo() {
    setTodoInfo((prev) => ({...prev, description: e.target.value}))
 
   };
+
+  
+
 
   return {
       

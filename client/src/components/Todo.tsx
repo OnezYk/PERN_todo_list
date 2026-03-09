@@ -20,6 +20,7 @@ export type TodoType = {
   updateTodos: () => void;
   delay: string;
   onCheck: () => void;
+  isDeleting: boolean
 };
 
 export const Todo = ({
@@ -33,6 +34,7 @@ export const Todo = ({
   updateTodos,
   delay,
   onCheck,
+  isDeleting
 }: TodoType) => {
   const [deleting, setDeleting] = useState(false);
   const [aberto, setAberto] = useState(false);
@@ -64,7 +66,7 @@ export const Todo = ({
     <div
       data-aos="fade-right"
       data-aos-delay={delay}
-      className={`rounded-xl ${deleting ? "deleting" : ""}`}
+      className={`rounded-xl ${deleting ? "deleting" : ""} ${isDeleting ? "deleting" : ""}`}
     >
       <div
         className={`flex text-stone-800 gap-4 px-5 rounded-xl border transition-all duration-300 hover:cursor-pointer ${concluido ? "bg-stone-100 border-stone-200" : "bg-white border-stone-300 shadow-md"}`}

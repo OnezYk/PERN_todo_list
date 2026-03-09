@@ -22,15 +22,15 @@ export const dateFormat = {
       return "Hoje"
     }
 
+
+
     const hoje = dayjs().format("YYYY-MM-DD")
     const hojeDaSemana = dayjs().weekday()
-    const diaDaSemana = dayjs(date).weekday()
     const data = dayjs(date).format("YYYY-MM-DD")
     const diff = dayjs(data).diff(hoje) / 1000 / 60 / 60 / 24
     
-    console.log(hojeDaSemana + diff)
-
-    if(hojeDaSemana + diff - 1 <= 6) {
+    //o valor de ontem é zero
+    if(hojeDaSemana + diff - 1 <= 6 && hojeDaSemana + diff - 1 > 0) {
 
       switch (hojeDaSemana + diff - 1) {
         case 0: 
